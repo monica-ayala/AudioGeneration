@@ -8,4 +8,4 @@ def _(directory):
         new_name = f"{i}{extension}"
         os.rename(os.path.join(directory, file), os.path.join(directory, new_name))
 
-_("D:\\Semester 8\\AudioGeneration\\data_ts")
+_("D:\\Semester 8\\AudioGeneration\\dataset")
