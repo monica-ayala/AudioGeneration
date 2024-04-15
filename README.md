@@ -45,6 +45,11 @@ While more computational intensive than MIDI files, using audio files result in 
 
 I provide a [python script](https://github.com/monica-ayala/AudioGeneration/blob/main/scripts/preprocessing.py) to do the transformation into mel spectogram format using the [librosa](https://pypi.org/project/librosa/) library and save the visual representation into the folder ```/spectogram_images```
 
+For example, these are some of the spectograms:
+![image](https://github.com/monica-ayala/AudioGeneration/assets/75228128/d1e2afdf-b67e-4efc-872f-eafad0077241)
+![image](https://github.com/monica-ayala/AudioGeneration/assets/75228128/8b28371c-c98c-4414-8531-2c40096dd3b7)
+![image](https://github.com/monica-ayala/AudioGeneration/assets/75228128/045c38a6-88bf-4054-b008-ccd1bb39126e)
+
 **References**
 
 Briot, JP., Pachet, F. Deep learning for music generation: challenges and directions. Neural Comput & Applic 32, 981–993 (2020). https://doi.org/10.1007/s00521-018-3813-6
