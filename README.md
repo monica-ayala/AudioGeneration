@@ -50,6 +50,8 @@ For example, these are some of the spectograms:
 ![image](https://github.com/monica-ayala/AudioGeneration/assets/75228128/8b28371c-c98c-4414-8531-2c40096dd3b7)
 ![image](https://github.com/monica-ayala/AudioGeneration/assets/75228128/045c38a6-88bf-4054-b008-ccd1bb39126e)
 
+To mantain the same shape of data (that is, that the shape of each spectogram is consistent) I decided to divde each audio file into 30 seconds each and generate their corresponding spectograms. This gave me a total of 1515 images in the ```/spectogram_images``` folder
+
 **Preprocessing**
 
 After generating the mel spectograms and saving the information into numpy list, we apply the following function to normalize the information in a scale of [0-1]
