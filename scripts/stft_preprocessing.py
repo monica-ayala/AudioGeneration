@@ -19,25 +19,18 @@ def segment_and_save_stft(file_path, output_dir, file_name, segment_length=30, n
         start_sample = i * segment_length * sample_rate
         end_sample = start_sample + segment_length * sample_rate
         segment = audio[start_sample:end_sample] if end_sample < len(audio) else np.pad(audio[start_sample:], (0, end_sample - len(audio)), 'constant')
-
-        # Compute the STFT
         stft = librosa.stft(segment, n_fft=n_fft, hop_length=hop_length)
-        # Convert to dB
         stft_dB = librosa.amplitude_to_db(np.abs(stft), ref=np.max)
-
         plt.figure(figsize=(10, 4))
         librosa.display.specshow(stft_dB, sr=sample_rate, hop_length=hop_length, x_axis='time', y_axis='linear')
         plt.colorbar(format='%+2.0f dB')
         plt.title(f'STFT Magnitude - Segment {i+1}')
         plt.tight_layout()
-        
         segment_file_name = f"{file_name}_segment_{i+1}.png"
         plt.savefig(os.path.join(output_dir, segment_file_name))
         plt.close()
-
-        # Append the dB spectrogram as a tuple with its key
         spectrograms.append(stft_dB)
-
+        
     return spectrograms
 
 def process_all_files(directory, output_directory):
