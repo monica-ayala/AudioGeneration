@@ -3,23 +3,11 @@ import librosa.display
 import numpy as np
 import matplotlib.pyplot as plt
 import h5py
+import soundfile as sf
 import os
 
 def segment_and_save_melspectrogram(file_path, output_dir, file_name, segment_length=30, n_mels=128, n_fft=2048, hop_length=512, sr=None):
-    """
-    Load an audio file, segment it, compute its Mel-spectrogram for each segment, 
-    and save each spectrogram as an image.
 
-    Parameters:
-    - file_path: str, path to the audio file.
-    - output_dir: str, directory where spectrogram images will be saved.
-    - file_name: str, base name for the output image files.
-    - segment_length: int, length of each audio segment in seconds.
-    - n_mels: int, number of Mel bands to generate.
-    - n_fft: int, length of the FFT window.
-    - hop_length: int, number of samples between successive frames.
-    - sr: int or None, desired sample rate of the audio; if None, uses file's original sample rate.
-    """
     audio, sample_rate = librosa.load(file_path, sr=sr)
     duration = librosa.get_duration(y=audio, sr=sample_rate)
     total_segments = int(np.ceil(duration / segment_length))
@@ -87,8 +75,33 @@ def save_spectrograms_to_hdf5(spectrograms, file_path):
         for i, spectrogram in enumerate(spectrograms):
             f.create_dataset(f'spectrogram_{i}', data=spectrogram, compression="gzip", compression_opts=9)
 
-output_directory = 'spectrogram_images'
-directory = 'D:\\Semester 8\\AudioGeneration\\dataset'
+output_directory = 'spectrogram_imagess'
+directory = 'D:\\Semester 8\\AudioGeneration\\test'
 all_spectrograms = process_all_files(directory, output_directory)
 # spectrograms_normalized = [normalize_spectrogram(s) for s in all_spectrograms]
 # save_spectrograms_to_hdf5(spectrograms_normalized, 'spectrograms.hdf5')
+
+import librosa
+import numpy as np
+
+# Assuming `S_dB` is your dB-scaled mel spectrogram
+def reconstruct_audio(S_dB, sr=22050, n_iter=32):
+    # Convert dB-scaled mel spectrogram back to power mel spectrogram
+    S = librosa.db_to_power(S_dB)
+    
+    # Invert the mel spectrogram to get back to linear frequency spectrogram
+    S_inv = librosa.feature.inverse.mel_to_stft(S, sr=sr)
+    
+    # Use the Griffin-Lim algorithm to estimate the phase
+    y_inv = librosa.griffinlim(S_inv, n_iter=n_iter)
+    
+    return y_inv
+
+# Load the spectrogram (replace this with how you actually load your spectrogram)
+S_dB = all_spectrograms[0]
+# Reconstruct the audio
+reconstructed_audio = reconstruct_audio(S_dB)
+
+# Save or play the reconstructed audio
+sf.write('reconstructed_audio.wav', reconstructed_audio, 22050)
+
