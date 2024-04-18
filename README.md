@@ -5,7 +5,7 @@
 **Mónica Andrea Ayala Marrero - A01707439**
 
 ---
-**About this dataset:**
+**About the dataset:**
 
 This dataset contains 188 songs from Taylor Swift's discography in mp3 format. The songs were uploaded by different users to the https://archive.org/ platform and compiled manually by me.
 
@@ -33,7 +33,9 @@ This dataset contains 188 songs from Taylor Swift's discography in mp3 format. T
 
 **Use:**
 
-This dataset can work for **Music Generation** projects using machine learning models such as CNNs, LSTMs or GANs. For the purpose of such a project, *the data does not have to be divided into test and train data*, all of the data will be used for training and hyperparameter adjustments will be done after qualitative (or even quantitative) analysis of the generated music.
+This dataset can work for **Music Generation** projects using machine learning models such as VAEs, LSTMs or GANs. For the purpose of such a project, *the data does not have to be divided into test and train data*, all of the data will be used for training and hyperparameter adjustments will be done after qualitative (or even quantitative) analysis of the generated music.
+
+More precisely, I will be working with a **Variational Autoencoder Model** that intakes spectogram data of the audio files and outputs reconstructed spectogram data. After training such model I will use the *decoder* to generate new spectogram data from samples of the ```prior``` distribution. I will then transform the spectogram into an audio format such as wav or mp3.
 
 **About the format:**
 
