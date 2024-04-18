@@ -7,10 +7,10 @@
 ---
 **About this dataset:**
 
-This dataset contains 189 songs from Taylor Swift's discography in mp3 format. The songs were uploaded by different users to the https://archive.org/ platform and compiled manually by me.
+This dataset contains 188 songs from Taylor Swift's discography in mp3 format. The songs were uploaded by different users to the https://archive.org/ platform and compiled manually by me.
 
 **Sources for each album:**
-- ***Taylor Swift*** [[link]](https://archive.org/details/cd_taylor-swift_taylor-swift/disc1/01.+Taylor+Swift+-+Tim+McGraw.flac) | 11 songs
+- ***Taylor Swift*** [[link]](https://archive.org/details/cd_taylor-swift_taylor-swift/disc1/01.+Taylor+Swift+-+Tim+McGraw.flac) | 10 songs
 - ***Fearless*** [[link]](https://archive.org/details/Fearless-Taylors-Version-Taylor-Swift) | 26 songs
 - ***Speak Now*** [[link]](https://archive.org/details/Speak-Now-Taylors-Version-Taylor-Swift) | 22 songs
 - ***Red*** [[link]](https://archive.org/details/Red-Album-Taylor-Swift-Taylors-Version) | 28 songs
@@ -43,18 +43,20 @@ While more computational intensive than MIDI files, using audio files result in 
 - Mel-Spectrogram (Mel scale).
 - MFCCs (Mel-Frequency Cepstral Coefficients) for MEL-scale cepstral representation.
 
-I provide a [python script](https://github.com/monica-ayala/AudioGeneration/blob/main/scripts/preprocessing.py) to do the transformation into mel spectogram format using the [librosa](https://pypi.org/project/librosa/) library and save the visual representation into the folder ```/spectogram_images```
+I provide two python scripts, [the first one](https://github.com/monica-ayala/AudioGeneration/blob/main/scripts/mel-preprocessing.py) to do the transformation from mp3 into mel spectogram format using the [librosa](https://pypi.org/project/librosa/) library and save the visual representation into the folder ```/spectogram_images```
 
 For example, these are some of the spectograms:
 ![image](https://github.com/monica-ayala/AudioGeneration/assets/75228128/d1e2afdf-b67e-4efc-872f-eafad0077241)
 ![image](https://github.com/monica-ayala/AudioGeneration/assets/75228128/8b28371c-c98c-4414-8531-2c40096dd3b7)
 ![image](https://github.com/monica-ayala/AudioGeneration/assets/75228128/045c38a6-88bf-4054-b008-ccd1bb39126e)
 
-To mantain the same shape of data (that is, that the shape of each spectogram is consistent) I decided to divde each audio file into 30 seconds each and generate their corresponding spectograms. This gave me a total of 1515 images in the ```/spectogram_images``` folder
+And [the second one](https://github.com/monica-ayala/AudioGeneration/blob/main/scripts/stft-preprocessing.py) to do the transformation into a Short-Time Fourier Transform (STFT) Spectogram and saving the visual representations to ```/stft_images``` and the data into ```stft_spectogram.npz```
+
+To mantain the same shape of data (that is, that the shape of each spectogram is consistent) I decided to divde each audio file into 30 seconds each and generate their corresponding spectograms. This gave me a total of 1515 spectograms of which I decided to prune out all of those that didn't complete 30 seconds, resulting in **1507** spectograms.
 
 **Preprocessing**
 
-After generating the mel spectograms and saving the information into numpy list, we apply the following function to normalize the information in a scale of [0-1]
+I decided to use the STFT Spectograms as they provide easier reconstrucion from STFT spectogram to .wav format. In ```/scripts/stft_preprocessing.py``` I 
 
 ```
 def normalize_spectrogram(spectrogram):
