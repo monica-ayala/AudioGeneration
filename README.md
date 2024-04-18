@@ -56,30 +56,28 @@ To mantain the same shape of data (that is, that the shape of each spectogram is
 
 **Preprocessing**
 
-I decided to use the STFT Spectograms as they provide easier reconstrucion from STFT spectogram to .wav format. In ```/scripts/stft_preprocessing.py``` I 
+I decided to use the STFT Spectograms as they provide easier reconstrucion from STFT spectogram to .wav format. In ```/scripts/stft_preprocessing.py``` I use the following functions to normalize the spectogram (get the data to be from [0-1]) and then to reshape each spectogram from shape (1025, 2584) to (1024, 2048,1) so that my VAE Model can better downscale and upscale the data.
 
 ```
 def normalize_spectrogram(spectrogram):
     min_val = np.min(spectrogram)
     max_val = np.max(spectrogram)
-    return (spectrogram - min_val) / (max_val - min_val)
+    normalized = (spectrogram - min_val) / (max_val - min_val)
+    return normalized
+
+def reshape(spectogram):
+    if spectogram.shape >= (1024, 2048):
+        reshaped = spectogram[:1024, :2048, np.newaxis] 
+    else:
+        reshaped = np.zeros((1024, 2048, 1))
+        reshaped[:spectogram.shape[0], :spectogram.shape[1], 0] = spectogram
+
+    return reshaped
 ```
-
-**Data Augmentation**
-
-For data augmentation we can shift the pitch of the spectogram or add random noise to it.
-
-```
-def pitch_shift_spectrogram(spectrogram, sample_rate, n_steps):
-    audio = librosa.feature.inverse.mel_to_audio(spectrogram, sr=sample_rate, n_fft=2048, hop_length=512)
-    audio_shifted = librosa.effects.pitch_shift(audio, sample_rate, n_steps)
-    spectrogram_shifted = librosa.feature.melspectrogram(y=audio_shifted, sr=sample_rate, n_fft=2048, hop_length=512, n_mels=128)
-    return librosa.power_to_db(spectrogram_shifted, ref=np.max)
-
-def add_noise_spectrogram(spectrogram, noise_level=0.005):
-    noise = np.random.randn(*spectrogram.shape) * noise_level
-    return spectrogram + noise
-```
+**Current Issues**
+- I cannot undo the normalization of the spectograms as I did not save their min_val and max_val, which in turn hinders the audio reconstruction.
+- The encoder is defined with both MaxPooling2D and Conv2D layers with 'agresive' strides that perhaps reduce the dimensionality too quickly.
+- The decoder upscales the data in a disimilar manner to that in which the encoder downscales it.
 
 **References**
 
