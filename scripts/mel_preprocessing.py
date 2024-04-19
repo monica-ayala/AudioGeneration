@@ -2,8 +2,6 @@ import librosa
 import librosa.display
 import numpy as np
 import matplotlib.pyplot as plt
-import h5py
-import soundfile as sf
 import os
 
 def segment_and_save_melspectrogram(file_path, output_dir, file_name, segment_length=30, n_mels=128, n_fft=2048, hop_length=512, sr=None):
@@ -49,31 +47,10 @@ def process_all_files(directory, output_directory):
             all_spectrograms.extend(spectrograms)
     return all_spectrograms
 
-## Normalization
-
 def normalize_spectrogram(spectrogram):
     min_val = np.min(spectrogram)
     max_val = np.max(spectrogram)
     return (spectrogram - min_val) / (max_val - min_val)
-
-## Data Augmentation
-
-def pitch_shift_spectrogram(spectrogram, sample_rate, n_steps):
-    audio = librosa.feature.inverse.mel_to_audio(spectrogram, sr=sample_rate, n_fft=2048, hop_length=512)
-    audio_shifted = librosa.effects.pitch_shift(audio, sample_rate, n_steps)
-    spectrogram_shifted = librosa.feature.melspectrogram(y=audio_shifted, sr=sample_rate, n_fft=2048, hop_length=512, n_mels=128)
-    return librosa.power_to_db(spectrogram_shifted, ref=np.max)
-
-def add_noise_spectrogram(spectrogram, noise_level=0.005):
-    noise = np.random.randn(*spectrogram.shape) * noise_level
-    return spectrogram + noise
-
-## Saving Data
-
-def save_spectrograms_to_hdf5(spectrograms, file_path):
-    with h5py.File(file_path, 'w') as f:
-        for i, spectrogram in enumerate(spectrograms):
-            f.create_dataset(f'spectrogram_{i}', data=spectrogram, compression="gzip", compression_opts=9)
 
 output_directory = 'spectrogram_imagess'
 directory = 'D:\\Semester 8\\AudioGeneration\\test'
