@@ -76,8 +76,8 @@ def reshape(spectogram):
 
     return reshaped
 ```
-**Current Issues**
-- I cannot undo the normalization of the spectograms as I did not save their min_val and max_val, which in turn hinders the audio reconstruction.
+**Issues**
+- I cannot undo the normalization of the spectograms as I did not save their min_val and max_val, which in turn hinders the audio reconstruction. => **solved** by defining global maximum and minimum.
 - The encoder is defined with both MaxPooling2D and Conv2D layers with 'agresive' strides that perhaps reduce the dimensionality too quickly.
 - The decoder upscales the data in a disimilar manner to that in which the encoder downscales it.
 
