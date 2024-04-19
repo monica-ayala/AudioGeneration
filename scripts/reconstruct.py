@@ -2,11 +2,15 @@ import librosa
 import soundfile as sf
 import numpy as np
 
+FIXED_MIN_VAL = -80  
+FIXED_MAX_VAL = 0 
+
 def normalize_spectrogram(spectrogram):
-    min_val = np.min(spectrogram)
-    max_val = np.max(spectrogram)
-    normalized = (spectrogram - min_val) / (max_val - min_val)
+    normalized = (spectrogram - FIXED_MIN_VAL) / (FIXED_MAX_VAL - FIXED_MIN_VAL)
     return normalized
+
+def inverse_normalize_spectrogram(normalized_spectrogram):
+    return normalized_spectrogram * (FIXED_MAX_VAL - FIXED_MIN_VAL) + FIXED_MIN_VAL
 
 def reshape(spectogram):
     if spectogram.shape >= (1024, 2048):
@@ -22,10 +26,12 @@ def audio_to_stft_to_audio(audio_path, output_path):
     stft = librosa.stft(y)
     stft = normalize_spectrogram(stft)
     stft = reshape(stft)
+    stft = stft[..., 0]
+    stft = inverse_normalize_spectrogram(stft)
     magnitude, phase = librosa.magphase(stft)
     stft_reconstructed = magnitude * phase
     y_reconstructed = librosa.istft(stft_reconstructed)
     sf.write(output_path, y_reconstructed, sr)
 
-audio_to_stft_to_audio('D:\\Semester 8\\AudioGeneration\\dataset\\188.mp3', 'new.wav')
+audio_to_stft_to_audio('C:\\Users\\mayal\\AudioGeneration\\dataset\\188.mp3', 'new.wav')
 
