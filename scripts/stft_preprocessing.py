@@ -5,10 +5,10 @@ import matplotlib.pyplot as plt
 import os
 import soundfile as sf
 
-FIXED_MIN_VAL = -80  
-FIXED_MAX_VAL = 0 
+FIXED_MIN_VAL = 0  
+FIXED_MAX_VAL = 247
 
-def segment_and_save_stft(file_path, output_dir, file_name, segment_length=30, n_fft=2048, hop_length=512, sr=None):
+def segment_and_save_stft(file_path, output_dir, file_name, segment_length=13, n_fft=1024, hop_length=1024, sr=None):
     audio, sample_rate = librosa.load(file_path, sr=sr)
     duration = librosa.get_duration(y=audio, sr=sample_rate)
     total_segments = int(np.ceil(duration / segment_length))
@@ -23,16 +23,16 @@ def segment_and_save_stft(file_path, output_dir, file_name, segment_length=30, n
         end_sample = start_sample + segment_length * sample_rate
         segment = audio[start_sample:end_sample] if end_sample < len(audio) else np.pad(audio[start_sample:], (0, end_sample - len(audio)), 'constant')
         stft = librosa.stft(segment, n_fft=n_fft, hop_length=hop_length)
-        stft_dB = librosa.amplitude_to_db(np.abs(stft), ref=np.max)
-        plt.figure(figsize=(10, 4))
-        librosa.display.specshow(stft_dB, sr=sample_rate, hop_length=hop_length, x_axis='time', y_axis='linear')
-        plt.colorbar(format='%+2.0f dB')
-        plt.title(f'STFT Magnitude - Segment {i+1}')
-        plt.tight_layout()
-        segment_file_name = f"{file_name}_segment_{i+1}.png"
-        plt.savefig(os.path.join(output_dir, segment_file_name))
-        plt.close()
-        spectrograms.append(stft_dB)
+        # stft_dB = librosa.amplitude_to_db(np.abs(stft), ref=np.max)
+        # plt.figure(figsize=(10, 4))
+        # librosa.display.specshow(stft_dB, sr=sample_rate, hop_length=hop_length, x_axis='time', y_axis='linear')
+        # plt.colorbar(format='%+2.0f dB')
+        # plt.title(f'STFT Magnitude - Segment {i+1}')
+        # plt.tight_layout()
+        # segment_file_name = f"{file_name}_segment_{i+1}.png"
+        # plt.savefig(os.path.join(output_dir, segment_file_name))
+        # plt.close()
+        spectrograms.append(stft)
         
     return spectrograms
 
@@ -40,12 +40,13 @@ def normalize_spectrogram(spectrogram):
     normalized = (spectrogram - FIXED_MIN_VAL) / (FIXED_MAX_VAL - FIXED_MIN_VAL)
     return normalized
 
-def reshape(spectrogram):
-    if spectrogram.shape[0] >= 1024 and spectrogram.shape[1] >= 2048:
-        reshaped = spectrogram[:1024, :2048, np.newaxis] 
+def reshape(spectogram):
+    if spectogram.shape >= (512, 512):
+        reshaped = spectogram[:512, :512, np.newaxis] 
     else:
-        reshaped = np.zeros((1024, 2048, 1))
-        reshaped[:spectrogram.shape[0], :spectrogram.shape[1], 0] = spectrogram
+        reshaped = np.zeros((512, 512, 1))
+        reshaped[:spectogram.shape[0], :spectogram.shape[1], 0] = spectogram
+
     return reshaped
 
 def process_all_files(directory, output_directory):
@@ -69,6 +70,6 @@ def process_all_files(directory, output_directory):
     return all_spectrograms
 
 output_directory = 'stft_images_2'
-directory = 'C:\\Users\\mayal\\AudioGeneration\\dataset'
+directory = 'C:\\Users\\mayal\\AudioGeneration\\mini_dataset'
 all_spectrograms = process_all_files(directory, output_directory)
-np.savez_compressed('stft_spectrograms.npz', **all_spectrograms)
+np.savez_compressed('dataset.npz', **all_spectrograms)
