@@ -1,3 +1,4 @@
-stft_spectrograms.npz
 .ipynb_checkpoints
-dataset.npz
+data.npz
+best_model.keras
+best_model_2.keras

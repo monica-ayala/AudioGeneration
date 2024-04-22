@@ -21,8 +21,6 @@ def reshape(spectogram):
 
     return reshaped
 
-    # stft = reshape(stft_dB)
-
 def specto_to_audio(stft, output_path):
     stft = stft[:, :, 0]
     stft = inverse_normalize_spectrogram(stft)
@@ -49,9 +47,7 @@ def audio_to_stft_to_audio(audio_path, output_path):
     y_reconstructed = librosa.istft(stft_reconstructed, n_fft=1024, hop_length=1024)
     sf.write(output_path, y_reconstructed, sr)
 
-#audio_to_stft_to_audio('C:\\Users\\mayal\\AudioGeneration\\dataset\\188.mp3', 'new.wav')
-
-data = np.load('dataset.npz')
+data = np.load('data.npz')
 spectos = np.array([data[f'{i}'] for i in range(len(data))])
 print(spectos.shape)
 specto_to_audio(spectos[0], 'new.wav')
