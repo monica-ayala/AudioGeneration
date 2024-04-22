@@ -7,11 +7,11 @@
 ---
 #### About the model
 
-This project employs a **Variational Autoencoder for autonomous music generation** based on spectogram reconstruction. An overview of the proyect pipeline is the following:
+This project employs a **Variational Autoencoder for autonomous music generation** based on spectogram reconstruction. The best model can be found [here](https://drive.google.com/drive/folders/1SIby6IPzSsLkenQCUV8todo2UaWzTu_f?usp=sharing)
 
 Firstly, we will train our VAE Model to reconstruct spectograms of shape (512, 512, 1) that we get from preprocessing the audios in our dataset. 
 
-*Note: To learn more about the dataset click [here](https://github.com/monica-ayala/AudioGeneration/blob/main/Preprocessing/README.md)*
+*Note: To learn more about the dataset and the preprocessing step click [here](https://github.com/monica-ayala/AudioGeneration/blob/main/Preprocessing/README.md)*
 
 ![1](https://github.com/monica-ayala/AudioGeneration/assets/75228128/b9225c7a-f194-4c84-8264-dd5fb2eebafb)
 
@@ -165,6 +165,7 @@ We finally use librosa to reconstruct the spectogram into music and also to crea
 **Sample 01**
 
 *Spectogram:*
+
 ![image](https://github.com/monica-ayala/AudioGeneration/assets/75228128/2a45a31b-c7fe-42d0-bdb1-41b8014ad054)
 
 *Audio:* [01](https://drive.google.com/file/d/1mbF8tjqJycRnt4WydzhHou_O8c5Tzpr0/view?usp=drive_link)
@@ -173,26 +174,44 @@ We finally use librosa to reconstruct the spectogram into music and also to crea
 
 *Spectogram:*
 
-*Audio:* [01]()
+![image](https://github.com/monica-ayala/AudioGeneration/assets/75228128/0cdd1387-fd6d-4780-8b7f-b87db6f77b82)
+
+*Audio:* [02](https://drive.google.com/file/d/1I5QcZgFV4YQzX8kRmHgrO8eVAGFTkYmm/view?usp=drive_link)
 
 **Sample 03**
 
 *Spectogram:*
 
-*Audio:* [01]()
+![image](https://github.com/monica-ayala/AudioGeneration/assets/75228128/5537b674-cd71-4449-b140-63055ea42b51)
+
+*Audio:* [03](https://drive.google.com/file/d/1cskz4u_5zVKV6wlKlmo8MfPrKemPYEU1/view?usp=drive_link)
 
 **Sample 04**
 
 *Spectogram:*
 
-*Audio:* [01]()
+![image](https://github.com/monica-ayala/AudioGeneration/assets/75228128/7710ad14-0cf7-4d37-9adc-74d80dc1577d)
+
+*Audio:* [04](https://drive.google.com/file/d/1ZAlVePR7GpypzwTWTua1v4K8mnrdBVY6/view?usp=drive_link)
 
 **Sample 05**
 
 *Spectogram:*
 
-*Audio:* [01]()
+![image](https://github.com/monica-ayala/AudioGeneration/assets/75228128/6f2ea128-ceef-4a34-a3cb-86ce634fbc1d)
+
+*Audio:* [05](https://drive.google.com/file/d/15CsqKX8pai6hMBCuuip9WkOyLy25u3Nm/view?usp=drive_link)
 
 For the [previously implemented model](https://github.com/monica-ayala/AudioGeneration/blob/main/models/e150_01.md) that failed the spectograms would always look like this even after training for days:
+
 ![image](https://github.com/monica-ayala/AudioGeneration/assets/75228128/07c0e751-398e-48a0-bcc2-66a865a4e11c)
+
+#### References
+
+[Understanding Mel Spectograms](https://medium.com/analytics-vidhya/understanding-the-mel-spectrogram-fca2afa2ce53)
+
+[Generating Sound with Neural Networks](https://drive.google.com/drive/folders/1SIby6IPzSsLkenQCUV8todo2UaWzTu_f?usp=sharing)
+
+[VAE for the CelebA dataset](https://colab.research.google.com/github/goodboychan/goodboychan.github.io/blob/main/_notebooks/2021-09-14-03-Variational-AutoEncoder-Celeb-A.ipynb)
+
 
