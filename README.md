@@ -13,12 +13,11 @@ Firstly, we will train our VAE Model to reconstruct spectograms of shape (512, 5
 
 *Note: To learn more about the dataset click [here](https://github.com/monica-ayala/AudioGeneration/blob/main/Preprocessing/README.md)*
 
-![(VAE Model)](https://i.stack.imgur.com/49HNA.png)
+![1](https://github.com/monica-ayala/AudioGeneration/assets/75228128/b9225c7a-f194-4c84-8264-dd5fb2eebafb)
 
 Then, having succesfully trained our model, we can use the decoder part as a generator. This is because we will be able to sample a random vector of data and decode it to transform it into a spectogram that will follow the same distribution of data as the one in our dataser, but be new/different as the seed is a random sample.
 
-![(VAE Model)](https://i.stack.imgur.com/49HNA.png)
-
+![2](https://github.com/monica-ayala/AudioGeneration/assets/75228128/12f688b4-8294-4250-b220-499da1361153)
 
 #### Implementation
 
@@ -166,8 +165,9 @@ We finally use librosa to reconstruct the spectogram into music and also to crea
 **Sample 01**
 
 *Spectogram:*
+![image](https://github.com/monica-ayala/AudioGeneration/assets/75228128/2a45a31b-c7fe-42d0-bdb1-41b8014ad054)
 
-*Audio:* [01]()
+*Audio:* [01](https://drive.google.com/file/d/1mbF8tjqJycRnt4WydzhHou_O8c5Tzpr0/view?usp=drive_link)
 
 **Sample 02**
 
@@ -192,3 +192,7 @@ We finally use librosa to reconstruct the spectogram into music and also to crea
 *Spectogram:*
 
 *Audio:* [01]()
+
+For the [previously implemented model](https://github.com/monica-ayala/AudioGeneration/blob/main/models/e150_01.md) that failed the spectograms would always look like this even after training for days:
+![image](https://github.com/monica-ayala/AudioGeneration/assets/75228128/07c0e751-398e-48a0-bcc2-66a865a4e11c)
+
