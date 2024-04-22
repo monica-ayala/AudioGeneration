@@ -1,93 +1,194 @@
-# AudioGeneration
+# AudioGeneration : Model Implementation and Evaluation
 ---
 **TC3002B: Desarrollo de aplicaciones avanzadas de ciencias computacionales (Gpo 201)**
 
 **Mónica Andrea Ayala Marrero - A01707439**
 
 ---
-**About the dataset:**
+#### About the model
 
-This dataset contains 188 songs from Taylor Swift's discography in mp3 format. The songs were uploaded by different users to the https://archive.org/ platform and compiled manually by me.
+This project employs a **Variational Autoencoder for autonomous music generation** based on spectogram reconstruction. An overview of the proyect pipeline is the following:
 
-**Sources for each album:**
-- ***Taylor Swift*** [[link]](https://archive.org/details/cd_taylor-swift_taylor-swift/disc1/01.+Taylor+Swift+-+Tim+McGraw.flac) | 10 songs
-- ***Fearless*** [[link]](https://archive.org/details/Fearless-Taylors-Version-Taylor-Swift) | 26 songs
-- ***Speak Now*** [[link]](https://archive.org/details/Speak-Now-Taylors-Version-Taylor-Swift) | 22 songs
-- ***Red*** [[link]](https://archive.org/details/Red-Album-Taylor-Swift-Taylors-Version) | 28 songs
-- ***1989*** [[link]](https://archive.org/details/1989-taylors-version) | 21 songs
-- ***Reputation*** [[link]](https://archive.org/details/reputation-cd) | 15 songs
-- ***Lover*** [[link]](https://archive.org/details/lover-cd/14+Audio+Track.aiff) | 18 songs
-- ***Evermore*** [[link]](https://archive.org/details/happiness_20240409) | 17 songs
-- ***Folklore*** [[link]](https://archive.org/details/epiphany_20240407) | 17 songs
-- ***Midnights*** [[link]](https://archive.org/details/01.-lavender-haze) | 14 songs
+Firstly, we will train our VAE Model to reconstruct spectograms of shape (512, 512, 1) that we get from preprocessing the audios in our dataset. 
 
-**Information:**
+*Note: To learn more about the dataset click [here](https://github.com/monica-ayala/AudioGeneration/blob/main/Preprocessing/README.md)*
 
-*Format*: MP3 Audio Files
+![(VAE Model)](https://i.stack.imgur.com/49HNA.png)
 
-*Date*: Compiled on april 2024. 
+Then, having succesfully trained our model, we can use the decoder part as a generator. This is because we will be able to sample a random vector of data and decode it to transform it into a spectogram that will follow the same distribution of data as the one in our dataser, but be new/different as the seed is a random sample.
 
-*Size*: 189 songs
+![(VAE Model)](https://i.stack.imgur.com/49HNA.png)
 
-*Licence*: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
 
-**Use:**
+#### Implementation
 
-This dataset can work for **Music Generation** projects using machine learning models such as VAEs, LSTMs or GANs. For the purpose of such a project, *the data does not have to be divided into test and train data*, all of the data will be used for training and hyperparameter adjustments will be done after qualitative (or even quantitative) analysis of the generated music.
+Using tensorflow and tensorflow probability we were able to build our model.
 
-More precisely, I will be working with a **Variational Autoencoder Model** that intakes spectogram data of the audio files and outputs reconstructed spectogram data. After training such model I will use the *decoder* to generate new spectogram data from samples of the ```prior``` distribution. I will then transform the spectogram into an audio format such as wav or mp3.
-
-**About the format:**
-
-While more computational intensive than MIDI files, using audio files result in more nuanced understanding of audio properties from the model. These will have to be processed into either:
-- Waveform Samples.
-- Short-Time Fourier Transform (STFT) Spectogram.
-- Mel-Spectrogram (Mel scale).
-- MFCCs (Mel-Frequency Cepstral Coefficients) for MEL-scale cepstral representation.
-
-I provide two python scripts, [the first one](https://github.com/monica-ayala/AudioGeneration/blob/main/scripts/mel-preprocessing.py) to do the transformation from mp3 into mel spectogram format using the [librosa](https://pypi.org/project/librosa/) library and save the visual representation into the folder ```/spectogram_images```
-
-For example, these are some of the spectograms:
-![image](https://github.com/monica-ayala/AudioGeneration/assets/75228128/d1e2afdf-b67e-4efc-872f-eafad0077241)
-![image](https://github.com/monica-ayala/AudioGeneration/assets/75228128/8b28371c-c98c-4414-8531-2c40096dd3b7)
-![image](https://github.com/monica-ayala/AudioGeneration/assets/75228128/045c38a6-88bf-4054-b008-ccd1bb39126e)
-
-And [the second one](https://github.com/monica-ayala/AudioGeneration/blob/main/scripts/stft-preprocessing.py) to do the transformation into a Short-Time Fourier Transform (STFT) Spectogram and saving the visual representations to ```/stft_images``` and the data into ```stft_spectogram.npz```
-
-To mantain the same shape of data (that is, that the shape of each spectogram is consistent) I decided to divde each audio file into 30 seconds each and generate their corresponding spectograms. This gave me a total of 1515 spectograms of which I decided to prune out all of those that didn't complete 30 seconds, resulting in **1507** spectograms.
-
-**Preprocessing**
-
-I decided to use the STFT Spectograms as they provide easier reconstrucion from STFT spectogram to .wav format. In ```/scripts/stft_preprocessing.py``` I use the following functions to normalize the spectogram (get the data to be from [0-1]) and then to reshape each spectogram from shape (1025, 2584) to (1024, 2048,1) so that my VAE Model can better downscale and upscale the data.
+We first start by defining our prior distribution that is defined by the number of components and the latent dimension.
 
 ```
-def normalize_spectrogram(spectrogram):
-    min_val = np.min(spectrogram)
-    max_val = np.max(spectrogram)
-    normalized = (spectrogram - min_val) / (max_val - min_val)
-    return normalized
-
-def reshape(spectogram):
-    if spectogram.shape >= (1024, 2048):
-        reshaped = spectogram[:1024, :2048, np.newaxis] 
-    else:
-        reshaped = np.zeros((1024, 2048, 1))
-        reshaped[:spectogram.shape[0], :spectogram.shape[1], 0] = spectogram
-
-    return reshaped
+def get_prior(num_modes, latent_dim):
+  gm = tfp.distributions.MixtureSameFamily(
+    mixture_distribution=tfp.distributions.Categorical(probs=[1.0/num_modes,]*num_modes),
+    components_distribution = tfp.distributions.MultivariateNormalDiag(
+      loc = tf.Variable(tf.random.normal(shape = [num_modes, latent_dim])),
+      scale_diag = tfp.util.TransformedVariable(
+        tf.Variable(tf.ones(shape = [num_modes, latent_dim])),
+        bijector = tfp.bijectors.Softplus())
+      )
+    )
+  return gm
 ```
-**Issues**
-- I cannot undo the normalization of the spectograms as I did not save their min_val and max_val, which in turn hinders the audio reconstruction. => **solved** by defining global maximum and minimum.
-- The encoder is defined with both MaxPooling2D and Conv2D layers with 'agresive' strides that perhaps reduce the dimensionality too quickly.
-- The decoder upscales the data in a disimilar manner to that in which the encoder downscales it.
 
-**References**
+This is the distribution that we will seek to train, it is defined as a mixture of Gaussian Distributions and it has fixed mixing coefficients but trainable mean and standard deviation.
 
-Briot, JP., Pachet, F. Deep learning for music generation: challenges and directions. Neural Comput & Applic 32, 981–993 (2020). https://doi.org/10.1007/s00521-018-3813-6
+For training a variational autoencoder we must define special loss functions. One of this is the KL_Regularizer. We must define this first as it will directly go into our decoder.
 
-**Previous Work**
+```
+def get_kl_regularizer(prior_distribution):
+    reg = tfp.layers.KLDivergenceRegularizer(
+        prior_distribution,
+        weight = 1.0,
+        use_exact_kl = False,
+        test_points_fn = lambda q : q.sample(3),
+        test_points_reduce_axis = (0,1))
 
-LSTM Model for music generation using MIDI files: [Github Repository](https://github.com/monica-ayala/MusicGenerator) and [Presentation](https://www.canva.com/design/DAF54orkKw4/GHiqPZIscVxblPPqpttnww/view?utm_content=DAF54orkKw4&utm_campaign=designshare&utm_medium=link&utm_source=editor)
+    return reg
+```
 
-*Note: The dataset I used is different in every possible way from this one, even format, and the model I intend on using will also be different*
+##### Encoder
 
+For the encoder, we define a convolutional network that recieves an input of shape (512, 512, 1) and applies several Convolutional layers, Batch Normalization and Max Pooling. Our model is ligther than it should, truly, better results would be attained without using strides in the last convolutional layer but this results in a heavy model that takes 2 days training.
+
+After the last convolutional layer, we flatten it and pass it to a dense layer that is the size of our latent dimension (100, in this case). Finally we pass it to a MultivariateNormalTri Layer and pass the KL_Regularizer defined previously.
+
+```
+input_shape = (512,512,1)
+    encoder = Sequential([
+        Conv2D(filters = 32, kernel_size = 4, activation = 'relu',
+               strides = 2, padding = 'SAME', input_shape = input_shape),
+        BatchNormalization(),
+
+        Conv2D(filters = 64, kernel_size = 4, activation = 'relu',
+               strides = 2, padding = 'SAME'),
+        BatchNormalization(),
+        MaxPooling2D(pool_size=2, strides=2, padding='SAME'), 
+
+        Conv2D(filters = 128, kernel_size = 4, activation = 'relu',
+               strides = 2, padding = 'SAME'),
+        BatchNormalization(),
+        
+        Conv2D(filters = 256, kernel_size = 4, strides = 2, activation = 'relu', padding = 'SAME'),
+        BatchNormalization(),
+        
+        Conv2D(filters = 256, kernel_size = 4, strides = 2, activation = 'relu', padding = 'SAME'),
+        BatchNormalization(),
+
+        Flatten(),
+        Dense(tfp.layers.MultivariateNormalTriL.params_size(latent_dim)),
+
+        tfp.layers.MultivariateNormalTriL(latent_dim, activity_regularizer = kl_regularizer)
+    ])
+```
+
+##### Decoder
+
+For the decoder I had previously tried to use ConvTranspose2D Layers without success, so I finally decided to use UpSampling and Conv2D layers. We take the input of our Dense layer (16384) and resize it before starting to apply the upsampling and  convolutional layers. Again, a four times bigger input (65538) would be too much/take up too much memory, but would be best suited for our (512, 512, 1) spectograms.
+
+```
+decoder = Sequential([
+        Dense(16384, activation = 'relu', input_shape = (latent_dim,)),
+        Reshape((8, 8, 256)),
+        UpSampling2D(size=(2, 2)),
+        
+        Conv2D(filters = 128, kernel_size = 3,
+               activation = 'relu', padding = 'SAME'),
+        BatchNormalization(),
+        
+        UpSampling2D(size=(2, 2)),
+        Conv2D(filters = 64, kernel_size = 3,
+               activation = 'relu', padding = 'SAME'),
+        BatchNormalization(),
+        
+        UpSampling2D(size=(2, 2)),
+        Conv2D(filters = 32 , kernel_size = 3,
+               activation = 'relu', padding = 'SAME'),
+        
+        UpSampling2D(size=(2, 2)),
+        Conv2D(filters = 128 , kernel_size = 3,
+               activation = 'relu', padding = 'SAME'),
+        
+        UpSampling2D(size=(2, 2)),
+        Conv2D(filters = 64 , kernel_size = 3,
+               activation = 'relu', padding = 'SAME'),
+        UpSampling2D(size=(2, 2)),
+        Conv2D(filters = 32 , kernel_size = 3,
+            activation = 'relu', padding = 'SAME'),
+        
+        Conv2D(filters = 1 , kernel_size = 3, padding = 'SAME'),
+        Flatten(),
+        tfp.layers.IndependentBernoulli(event_shape = (512, 512, 1))
+    ])
+```
+
+We then define our other loss function, the reconstruction loss, which compares the differences between the input and output images. 
+
+```
+def reconstruction_loss(batch_of_images, decoding_dist):
+    return -tf.reduce_sum(decoding_dist.log_prob(batch_of_images), axis = 0)
+```
+
+This is the one we pass to our final model defined below.
+
+```
+vae = Model(inputs=encoder.inputs, outputs=decoder(encoder.outputs))
+optimizer = tf.keras.optimizers.Adam(learning_rate=0.0005)
+vae.compile(optimizer=optimizer, loss=reconstruction_loss)
+```
+
+#### Evaluation
+
+For this step we define a function that generates new samples of spectograms from the generative model, taking the prior distribution and the decoder to generate this data with random sampling.
+
+```
+def generate_music(prior, decoder, n_samples):
+    z = prior.sample(n_samples)
+    return decoder(z).mean()
+
+n_samples = 5
+sm = generate_music(prior, decoder, n_samples)
+```
+
+We finally use librosa to reconstruct the spectogram into music and also to create plots of our samples.
+
+*Note: After much trouble with the preprocessing step, I am only begining to train my final model. With only 10 epochs completed, these are the results.*
+
+**Sample 01**
+
+*Spectogram:*
+
+*Audio:* [01]()
+
+**Sample 02**
+
+*Spectogram:*
+
+*Audio:* [01]()
+
+**Sample 03**
+
+*Spectogram:*
+
+*Audio:* [01]()
+
+**Sample 04**
+
+*Spectogram:*
+
+*Audio:* [01]()
+
+**Sample 05**
+
+*Spectogram:*
+
+*Audio:* [01]()
