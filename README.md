@@ -214,4 +214,9 @@ For the [previously implemented model](https://github.com/monica-ayala/AudioGene
 
 [VAE for the CelebA dataset](https://colab.research.google.com/github/goodboychan/goodboychan.github.io/blob/main/_notebooks/2021-09-14-03-Variational-AutoEncoder-Celeb-A.ipynb)
 
+Natsiou, Anastasia et al. “An Exploration of the Latent Space of a Convolutional Variational Autoencoder for the Generation of Musical Instrument Tones.” xAI (2023).
+
+Briot, JP., Pachet, F. Deep learning for music generation: challenges and directions. Neural Comput & Applic 32, 981–993 (2020). https://doi.org/10.1007/s00521-018-3813-6
+
+Dhariwal, P., Jun, H., Payne, C., Kim, J.W., Radford, A., & Sutskever, I. (2020). Jukebox: A Generative Model for Music. ArXiv, abs/2005.00341. https://openai.com/research/jukebox
 
